@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nombres complexos · pràctica interactiva</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+<style>
+  :root{
+    --ink:#0f172a; --mut:#64748b; --line:#e2e8f0; --bg:#f8fafc;
+    --ok:#059669; --bad:#dc2626; --acc:#4f46e5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{display:flex;min-height:100vh}
+  /* ---- barra lateral ---- */
+  #nav{width:290px;flex:0 0 290px;background:#0f172a;color:#cbd5e1;padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+  #nav h1{font-size:15px;color:#fff;margin:0 0 2px}
+  #nav .sub{font-size:11px;color:#64748b;margin-bottom:16px}
+  .nitem{display:flex;gap:9px;align-items:center;padding:7px 9px;border-radius:8px;cursor:pointer;font-size:13px;line-height:1.25;margin-bottom:2px;border:1px solid transparent}
+  .nitem:hover{background:#1e293b}
+  .nitem.on{background:#312e81;border-color:#4f46e5;color:#fff}
+  .nitem .num{width:22px;height:22px;flex:0 0 22px;border-radius:6px;background:#1e293b;display:grid;place-items:center;font-size:11px;font-weight:700}
+  .nitem.on .num{background:#4f46e5}
+  .nitem .bar{height:3px;background:#1e293b;border-radius:2px;margin-top:4px;overflow:hidden}
+  .nitem .bar i{display:block;height:100%;background:#22c55e;width:0}
+  /* ---- principal ---- */
+  #main{flex:1;padding:26px 32px 90px;max-width:1080px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .st{font-size:15px;line-height:1.7;border-left:3px solid var(--acc);padding-left:14px;margin-bottom:20px}
+  .tex{font-size:16px}
+  .lbl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:3px}
+  /* ---- inputs ---- */
+  input[type=text]{font:inherit;font-size:14px;padding:6px 9px;border:1.5px solid #cbd5e1;border-radius:7px;width:100%;min-width:90px;background:#fff;transition:.12s}
+  input[type=text]:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.13)}
+  input.ok{border-color:var(--ok);background:#ecfdf5}
+  input.no{border-color:var(--bad);background:#fef2f2}
+  /* ---- botons ---- */
+  button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#fff;padding:7px 13px;font-size:13px;font-weight:500;transition:.12s}
+  button:hover{background:#f1f5f9}
+  button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+  button.pri:hover{background:#4338ca}
+  button.sm{font-size:12px;padding:4px 9px}
+  .fb{font-size:12.5px;margin-top:6px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)} .fb.hint{color:#b45309}
+  .sol{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:9px 12px;margin-top:9px;font-size:14px}
+  .tag{display:inline-block;font-size:10px;background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:5px;font-weight:700;vertical-align:middle}
+  canvas{border:1px solid var(--line);border-radius:9px;background:#fff;max-width:100%}
+  .opt{display:flex;gap:8px;align-items:flex-start;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;cursor:pointer;font-size:13.5px;margin-bottom:6px}
+  .opt:hover{background:#f8fafc} .opt.sel{border-color:var(--acc);background:#eef2ff}
+  .opt.ok{border-color:var(--ok);background:#ecfdf5} .opt.no{border-color:var(--bad);background:#fef2f2}
+  details>summary{cursor:pointer;font-size:12.5px;color:var(--acc);font-weight:600;list-style:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary::before{content:"▸ ";display:inline-block;transition:.15s}
+  details[open]>summary::before{transform:rotate(90deg)}
+  .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .pill{font-size:12px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav id="nav">
+    <h1>Nombres complexos</h1>
+    <div class="sub">Àlgebra · full de pràctica</div>
+    <div id="navlist"></div>
+  </nav>
+
+  <main id="main">
+    <div class="topbar">
+      <span class="pill" id="score">0 / 0</span>
+      <button class="pri" id="checkAll">Comprovar tot</button>
+      <button id="revealAll">Mostrar solucions</button>
+      <button id="reset">Reiniciar</button>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
